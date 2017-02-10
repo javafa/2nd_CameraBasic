@@ -78,12 +78,15 @@ public class MainActivity extends AppCompatActivity {
             switch(v.getId()){
                 case R.id.btnCamera: //카메라 버튼 동작
                     intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-                    // 카메라 촬영 후 미디어 컨텐트 uri 를 생성해서 외부저장소에 저장한다
+
+                    // 누가 버전부터 기본 Action Image Capture 로는 처리안됨
+                    // --- 카메라 촬영 후 미디어 컨텐트 uri 를 생성해서 외부저장소에 저장한다 ---
                     ContentValues values = new ContentValues(1);
                     values.put(MediaStore.Images.Media.MIME_TYPE,"image/jpg");
                     fileUri = getContentResolver().insert(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, values);
                     intent.putExtra(MediaStore.EXTRA_OUTPUT, fileUri);
                     intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION | Intent.FLAG_GRANT_WRITE_URI_PERMISSION);
+                    // --- 여기 까지 컨텐트 uri 강제세팅 ---
 
                     startActivityForResult(intent, REQ_CAMERA);
                     break;
