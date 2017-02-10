@@ -79,9 +79,9 @@ public class MainActivity extends AppCompatActivity {
                 case R.id.btnCamera: //카메라 버튼 동작
                     intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
 
-                    // 마시멜로 이상 버전에서는 아래 코드를 반영해야 한다.
+                    // 롤리팝 이상 버전에서는 아래 코드를 반영해야 한다.
                     // --- 카메라 촬영 후 미디어 컨텐트 uri 를 생성해서 외부저장소에 저장한다 ---
-                    if ( Build.VERSION.SDK_INT >= Build.VERSION_CODES.M ) {
+                    if ( Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP ) {
                         ContentValues values = new ContentValues(1);
                         values.put(MediaStore.Images.Media.MIME_TYPE, "image/jpg");
                         fileUri = getContentResolver().insert(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, values);
@@ -100,11 +100,10 @@ public class MainActivity extends AppCompatActivity {
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         if(requestCode == REQ_CAMERA){
-            // 마시멜로 체크
-            if ( Build.VERSION.SDK_INT >= Build.VERSION_CODES.M ) {
-                if (data != null && data.getData() != null) {
-                    fileUri = data.getData();
-                }
+            // 롤리팝 체크
+            if ( Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP ) {
+                Log.i("Camera","data.getData()==============================="+data.getData());
+                fileUri = data.getData();
             }
             Log.i("Camera","fileUri==============================="+fileUri);
 
