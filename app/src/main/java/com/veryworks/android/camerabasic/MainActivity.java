@@ -1,7 +1,9 @@
 package com.veryworks.android.camerabasic;
 
+import android.content.Intent;
 import android.os.Build;
 import android.os.Bundle;
+import android.provider.MediaStore;
 import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
@@ -22,12 +24,27 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        // 1. 위젯을 세팅
         setWidget();
+        // 2. 버튼관련 컨트롤러 활성화처리
+        buttonDisable();
+        // 3. 리스너 계열을 등록
         setListener();
+        // 4. 권한처리
         checkPermission();
     }
+    // 버튼 비활성화하기
+    private void buttonDisable(){
+        btnCamera.setEnabled(false);
+    }
+    // 버튼 활성화하기
+    private void buttonEnable(){
+        btnCamera.setEnabled(true);
+    }
+
     private void init(){
-        // 프로그램 실행
+        // 권한처리가 통과 되었을때만 버튼을 활성화 시켜준다
+        buttonEnable();
     }
 
     // 권한관리
@@ -53,9 +70,11 @@ public class MainActivity extends AppCompatActivity {
     private View.OnClickListener clickListener = new View.OnClickListener() {
         @Override
         public void onClick(View v) {
+            Intent intent = null;
             switch(v.getId()){
                 case R.id.btnCamera: //카메라 버튼 동작
-
+                    intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+                    startActivityForResult(intent, REQ_CAMERA);
                     break;
             }
         }
@@ -69,7 +88,6 @@ public class MainActivity extends AppCompatActivity {
                 init();
             }else{
                 Toast.makeText(this, "권한을 허용하지 않으시면 프로그램을 실행할 수 없습니다.", Toast.LENGTH_LONG).show();
-                finish();
             }
         }
     }
