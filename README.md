@@ -6,6 +6,8 @@
 ```java
 Uri fileUri = null;
 
+Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+
 if ( Build.VERSION.SDK_INT >= Build.VERSION_CODES.N ) {
     // 저장할 미디어 속성을 정의하는 클래스
     ContentValues values = new ContentValues(1);
@@ -18,4 +20,6 @@ if ( Build.VERSION.SDK_INT >= Build.VERSION_CODES.N ) {
     // Uri에 읽기와 쓰기 권한을 시스템에 요청
     intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION | Intent.FLAG_GRANT_WRITE_URI_PERMISSION);
 }
+
+startActivityForResult(intent, REQ_CAMERA);
 ```
