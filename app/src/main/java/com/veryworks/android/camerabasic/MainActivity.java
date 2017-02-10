@@ -20,8 +20,9 @@ public class MainActivity extends AppCompatActivity {
 
     private final int REQ_PERMISSION = 100; // 권한요청코드
     private final int REQ_CAMERA = 101; // 카메라 요청코드
+    private final int REQ_GALLERY = 102; // 갤러리 요청코드
 
-    Button btnCamera;
+    Button btnCamera, btnGallery;
     ImageView imageView;
 
     @Override
@@ -66,10 +67,12 @@ public class MainActivity extends AppCompatActivity {
     private void setWidget(){
         imageView = (ImageView) findViewById(R.id.imageView);
         btnCamera = (Button) findViewById(R.id.btnCamera);
+        btnGallery = (Button) findViewById(R.id.btnGallery);
     }
     // 리스너 세팅
     private void setListener(){
         btnCamera.setOnClickListener(clickListener);
+        btnGallery.setOnClickListener(clickListener);
     }
     // 리스너 정의
     Uri fileUri = null;
@@ -94,6 +97,13 @@ public class MainActivity extends AppCompatActivity {
 
                     startActivityForResult(intent, REQ_CAMERA);
                     break;
+
+                case R.id.btnGallery: // 갤러리에서 이미지 불러오기
+                    intent = new Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
+                    intent.setType("image/*"); // 외부저장소에 있는 이미지만 가져오기 위한 필터링
+                    startActivityForResult( Intent.createChooser(intent,"Select Picture") , REQ_GALLERY);
+                    break;
+
             }
         }
     };
@@ -104,24 +114,37 @@ public class MainActivity extends AppCompatActivity {
 
         Log.i("Camera","resultCode==============================="+resultCode);
 
-        if(requestCode == REQ_CAMERA && resultCode == RESULT_OK){ // 사진 확인처리됨 RESULT_OK = -1
-            // 롤리팝 체크
-            if ( Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP ) {
-                Log.i("Camera","data.getData()==============================="+data.getData());
-                fileUri = data.getData();
-            }
-            Log.i("Camera","fileUri==============================="+fileUri);
-            if(fileUri != null) {
-                // 글라이드로 이미지 세팅하면 자동으로 사이즈 조절
-                Glide.with(this)
-                        .load(fileUri)
-                        .into(imageView);
-            } else {
-                Toast.makeText(this, "사진파일이 없습니다", Toast.LENGTH_LONG).show();
-            }
-        } else {
-            // resultCode 가 0이고 사진이 찍혔으면 uri 가 남는데
-            // uri 가 있을 경우 삭제처리...
+        switch(requestCode) {
+
+            case REQ_GALLERY:
+                if(resultCode == RESULT_OK) {
+                    fileUri = data.getData();
+                    Glide.with(this)
+                            .load(fileUri)
+                            .into(imageView);
+                }
+                break;
+            case REQ_CAMERA :
+                if (requestCode == REQ_CAMERA && resultCode == RESULT_OK) { // 사진 확인처리됨 RESULT_OK = -1
+                    // 롤리팝 체크
+                    if (Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP) {
+                        Log.i("Camera", "data.getData()===============================" + data.getData());
+                        fileUri = data.getData();
+                    }
+                    Log.i("Camera", "fileUri===============================" + fileUri);
+                    if (fileUri != null) {
+                        // 글라이드로 이미지 세팅하면 자동으로 사이즈 조절
+                        Glide.with(this)
+                                .load(fileUri)
+                                .into(imageView);
+                    } else {
+                        Toast.makeText(this, "사진파일이 없습니다", Toast.LENGTH_LONG).show();
+                    }
+                } else {
+                    // resultCode 가 0이고 사진이 찍혔으면 uri 가 남는데
+                    // uri 가 있을 경우 삭제처리...
+                }
+                break;
         }
     }
 
