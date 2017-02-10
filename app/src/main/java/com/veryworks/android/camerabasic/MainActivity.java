@@ -14,6 +14,8 @@ import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.Toast;
 
+import com.bumptech.glide.Glide;
+
 public class MainActivity extends AppCompatActivity {
 
     private final int REQ_PERMISSION = 100; // 권한요청코드
@@ -99,19 +101,27 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        if(requestCode == REQ_CAMERA){
+
+        Log.i("Camera","resultCode==============================="+resultCode);
+
+        if(requestCode == REQ_CAMERA && resultCode == RESULT_OK){ // 사진 확인처리됨 RESULT_OK = -1
             // 롤리팝 체크
             if ( Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP ) {
                 Log.i("Camera","data.getData()==============================="+data.getData());
                 fileUri = data.getData();
             }
             Log.i("Camera","fileUri==============================="+fileUri);
-
             if(fileUri != null) {
-                imageView.setImageURI(fileUri);
+                // 글라이드로 이미지 세팅하면 자동으로 사이즈 조절
+                Glide.with(this)
+                        .load(fileUri)
+                        .into(imageView);
             } else {
                 Toast.makeText(this, "사진파일이 없습니다", Toast.LENGTH_LONG).show();
             }
+        } else {
+            // resultCode 가 0이고 사진이 찍혔으면 uri 가 남는데
+            // uri 가 있을 경우 삭제처리...
         }
     }
 
