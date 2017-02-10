@@ -74,8 +74,10 @@ public class MainActivity extends AppCompatActivity {
         btnCamera.setOnClickListener(clickListener);
         btnGallery.setOnClickListener(clickListener);
     }
-    // 리스너 정의
+
+    // 사진촬영후 임시로 저장할 파일 공간
     Uri fileUri = null;
+    // 리스너 정의
     private View.OnClickListener clickListener = new View.OnClickListener() {
         @Override
         public void onClick(View v) {
@@ -87,23 +89,28 @@ public class MainActivity extends AppCompatActivity {
                     // 롤리팝 이상 버전에서는 아래 코드를 반영해야 한다.
                     // --- 카메라 촬영 후 미디어 컨텐트 uri 를 생성해서 외부저장소에 저장한다 ---
                     if ( Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP ) {
+                        // 저장할 미디어 속성을 정의하는 클래스
                         ContentValues values = new ContentValues(1);
+                        // 속성중에 파일의 종류를 정의
                         values.put(MediaStore.Images.Media.MIME_TYPE, "image/jpg");
+                        // 전역변수로 정의한 fileUri에 외부저장소 컨텐츠가 있는 Uri 를 임시로 생성해서 넣어준다.
                         fileUri = getContentResolver().insert(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, values);
+                        // 위에서 생성한 fileUri를 사진저장공간으로 사용하겠다고 설정
                         intent.putExtra(MediaStore.EXTRA_OUTPUT, fileUri);
+                        // Uri에 읽기와 쓰기 권한을 시스템에 요청
                         intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION | Intent.FLAG_GRANT_WRITE_URI_PERMISSION);
                     }
                     // --- 여기 까지 컨텐트 uri 강제세팅 ---
-
                     startActivityForResult(intent, REQ_CAMERA);
                     break;
 
                 case R.id.btnGallery: // 갤러리에서 이미지 불러오기
                     intent = new Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
+                    // 이미지 여러개 가져오는 플래그
+                    // intent.putExtra(Intent.EXTRA_ALLOW_MULTIPLE, true);
                     intent.setType("image/*"); // 외부저장소에 있는 이미지만 가져오기 위한 필터링
                     startActivityForResult( Intent.createChooser(intent,"Select Picture") , REQ_GALLERY);
                     break;
-
             }
         }
     };
@@ -111,8 +118,6 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-
-        Log.i("Camera","resultCode==============================="+resultCode);
 
         switch(requestCode) {
 
@@ -124,8 +129,9 @@ public class MainActivity extends AppCompatActivity {
                             .into(imageView);
                 }
                 break;
+
             case REQ_CAMERA :
-                if (requestCode == REQ_CAMERA && resultCode == RESULT_OK) { // 사진 확인처리됨 RESULT_OK = -1
+                if (resultCode == RESULT_OK) { // 사진 확인처리됨 RESULT_OK = -1
                     // 롤리팝 체크
                     if (Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP) {
                         Log.i("Camera", "data.getData()===============================" + data.getData());
@@ -137,7 +143,9 @@ public class MainActivity extends AppCompatActivity {
                         Glide.with(this)
                                 .load(fileUri)
                                 .into(imageView);
-                    } else {
+                    }
+                    // 각자 고민...
+                    else {
                         Toast.makeText(this, "사진파일이 없습니다", Toast.LENGTH_LONG).show();
                     }
                 } else {
