@@ -8,6 +8,7 @@ import android.os.Bundle;
 import android.provider.MediaStore;
 import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
@@ -78,15 +79,15 @@ public class MainActivity extends AppCompatActivity {
                 case R.id.btnCamera: //카메라 버튼 동작
                     intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
 
-                    // 누가는 아래 코드를 반영해야 한다.
+                    // 마시멜로 이상 버전에서는 아래 코드를 반영해야 한다.
                     // --- 카메라 촬영 후 미디어 컨텐트 uri 를 생성해서 외부저장소에 저장한다 ---
-//                    if ( Build.VERSION.SDK_INT >= Build.VERSION_CODES.N ) {
+                    if ( Build.VERSION.SDK_INT >= Build.VERSION_CODES.M ) {
                         ContentValues values = new ContentValues(1);
                         values.put(MediaStore.Images.Media.MIME_TYPE, "image/jpg");
                         fileUri = getContentResolver().insert(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, values);
                         intent.putExtra(MediaStore.EXTRA_OUTPUT, fileUri);
                         intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION | Intent.FLAG_GRANT_WRITE_URI_PERMISSION);
-//                    }
+                    }
                     // --- 여기 까지 컨텐트 uri 강제세팅 ---
 
                     startActivityForResult(intent, REQ_CAMERA);
@@ -99,11 +100,19 @@ public class MainActivity extends AppCompatActivity {
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         if(requestCode == REQ_CAMERA){
-            // 누가 일경우만 getData()에 null 이 넘어올것이다
-//            if(data.getData() != null){
-//                fileUri = data.getData();
-//            }
-            imageView.setImageURI(fileUri);
+            // 마시멜로 체크
+            if ( Build.VERSION.SDK_INT >= Build.VERSION_CODES.M ) {
+                if (data != null && data.getData() != null) {
+                    fileUri = data.getData();
+                }
+            }
+            Log.i("Camera","fileUri==============================="+fileUri);
+
+            if(fileUri != null) {
+                imageView.setImageURI(fileUri);
+            } else {
+                Toast.makeText(this, "사진파일이 없습니다", Toast.LENGTH_LONG).show();
+            }
         }
     }
 
